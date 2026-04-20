@@ -348,6 +348,15 @@ psql postgres -c "ALTER USER familytree_user CREATEDB;"
 
 Puis relancez `npx prisma migrate dev --name init`.
 
+**❌ `sh: ts-node: not found` lors de `npm run db:seed`**
+
+`ts-node` n'est pas installé globalement. Relancez d'abord `npm install` pour récupérer `tsx` (l'outil utilisé depuis la dernière mise à jour), puis relancez le seed :
+
+```bash
+npm install
+npm run db:seed
+```
+
 **❌ `database "familytree" does not exist`**
 
 La base de données n'a pas été créée. Reprenez la section « Créer la base de données » de l'étape 2.
