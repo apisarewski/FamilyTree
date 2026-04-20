@@ -357,6 +357,15 @@ npm install
 npm run db:seed
 ```
 
+**❌ `Cannot find module '.prisma/client/default'` lors de `npm run db:seed`**
+
+Le client Prisma n'a pas été généré. Exécutez ces commandes dans l'ordre :
+
+```bash
+npx prisma generate
+npm run db:seed
+```
+
 **❌ `database "familytree" does not exist`**
 
 La base de données n'a pas été créée. Reprenez la section « Créer la base de données » de l'étape 2.
