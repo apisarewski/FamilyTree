@@ -127,7 +127,7 @@ Ces commandes sont à lancer **une seule fois**, après l'installation de Postgr
 sudo -u postgres psql
 
 # Dans le shell psql, tapez ces commandes (une par une) :
-CREATE USER familytree_user WITH PASSWORD 'monmotdepasse';
+CREATE USER familytree_user WITH PASSWORD 'monmotdepasse' CREATEDB;
 CREATE DATABASE familytree OWNER familytree_user;
 GRANT ALL PRIVILEGES ON DATABASE familytree TO familytree_user;
 \q
@@ -140,7 +140,7 @@ GRANT ALL PRIVILEGES ON DATABASE familytree TO familytree_user;
 psql postgres
 
 # Dans le shell psql, tapez ces commandes (une par une) :
-CREATE USER familytree_user WITH PASSWORD 'monmotdepasse';
+CREATE USER familytree_user WITH PASSWORD 'monmotdepasse' CREATEDB;
 CREATE DATABASE familytree OWNER familytree_user;
 GRANT ALL PRIVILEGES ON DATABASE familytree TO familytree_user;
 \q
@@ -153,12 +153,14 @@ GRANT ALL PRIVILEGES ON DATABASE familytree TO familytree_user;
 3. Clic droit sur **« Login/Group Roles »** → **« Create »** → **« Login/Group Role »**
    - Name : `familytree_user`
    - Password : `monmotdepasse`
-   - Privileges : cochez « Can login »
+   - Privileges : cochez **« Can login »** et **« Can create databases »**
 4. Clic droit sur **« Databases »** → **« Create »** → **« Database »**
    - Name : `familytree`
    - Owner : `familytree_user`
 
 > 💡 Remplacez `monmotdepasse` par un mot de passe de votre choix. Notez-le, vous en aurez besoin à l'étape suivante.
+>
+> ⚠️ Le `CREATEDB` est obligatoire : Prisma crée une base temporaire interne lors des migrations. Sans ce droit, la commande `npx prisma migrate dev` échoue.
 
 ---
 
@@ -328,6 +330,23 @@ brew services start postgresql@16
 **❌ `password authentication failed for user "familytree_user"`**
 
 Le mot de passe dans `DATABASE_URL` ne correspond pas à celui créé dans PostgreSQL. Vérifiez qu'ils sont identiques (attention aux majuscules, espaces, caractères spéciaux).
+
+**❌ `Error P3014 — permission denied to create database` (shadow database)**
+
+Prisma a besoin de créer une base temporaire pendant les migrations, ce qui nécessite le droit `CREATEDB`. Accordez-le avec cette commande :
+
+```bash
+# Linux
+sudo -u postgres psql -c "ALTER USER familytree_user CREATEDB;"
+
+# Mac
+psql postgres -c "ALTER USER familytree_user CREATEDB;"
+
+# Windows (PowerShell, en tant qu'administrateur)
+& "C:\Program Files\PostgreSQL\16\bin\psql.exe" -U postgres -c "ALTER USER familytree_user CREATEDB;"
+```
+
+Puis relancez `npx prisma migrate dev --name init`.
 
 **❌ `database "familytree" does not exist`**
 
